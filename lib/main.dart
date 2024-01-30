@@ -117,11 +117,15 @@ class _CounterPageState extends State<CounterPage> {
   TextField(
     keyboardType: TextInputType.number,
     decoration: const InputDecoration(hintText: 'Nhập số nguyên n: '),
-    $(int n = int.parse(stdin.readLineSync())),
+    {int n = int.parse(stdin.readLineSync())},
     onChanged: (value){
       n= int.parse(value);
     },
     contentPadding:
-      EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
   )
+  FloatingActionButton(
+          onPressed: MyObject.power(),
+          child: const Icon(Icons.add),
+        )
 }

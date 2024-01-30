@@ -26,13 +26,13 @@ class MyObject {
     return result;
   }
 
-  int powerV2(int value, exponent) {
+  int powerV2(int value, int exponent) {
     //sử dụng giải thuật đệ quy
     if (exponent == 0)
       return 1;
     else if (exponent == 1)
       return value;
     else
-      return (value, exponent - 1) * value;
+      return powerV2(value, exponent - 1) * value;
   }
 }

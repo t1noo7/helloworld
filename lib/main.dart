@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:helloworld/MyObject.dart';
-import 'package:helloworld/Exponential.dart';
 
-library Global;
 
 void main() {
   runApp(const MyApp());
@@ -58,7 +56,7 @@ class _CounterPageState extends State<CounterPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
-        title: const Text('Chào em, anh đứng đây từ chiều'),
+        title: const Text('Counter Page'),
         // actions: [
         //   IconButton(
         //     onPressed: _decrement,

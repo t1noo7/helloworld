@@ -1,131 +1,131 @@
-import 'dart:io';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:helloworld/MyObject.dart';
-
+import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CounterPage(),
+    return MaterialApp(
+      title: 'News App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: NewsList(),
     );
   }
 }
 
-class CounterPage extends StatefulWidget {
-  const CounterPage({super.key});
+class NewsList extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _CounterPageState();
-  }
+  _NewsListState createState() => _NewsListState();
 }
 
-class _CounterPageState extends State<CounterPage> {
-  int _counter = 0;
+class _NewsListState extends State<NewsList> {
+  List<dynamic> _news = [];
 
-  void _increment() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    fetchNews();
   }
 
-  void _decrement() {
-    setState(() {
-      _counter--;
-    });
+  Future<void> fetchNews() async {
+    final apiKey =
+        '29347a6a19884853b86208f068950876'; // Replace with your NewsAPI.org API key
+    final response = await http.get(Uri.parse(
+        'https://newsapi.org/v2/top-headlines?country=us&apiKey=$apiKey'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _news = json.decode(response.body)['articles'];
+      });
+    } else {
+      throw Exception('Failed to load news');
+    }
   }
-
-//   class MyHomePage extends StatefulWidget {
-//     State<MyHomePage>
-//   }
-// }
-
-//   class _MyHomePageState extends State<MyHomePage> {
-
-//   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
-        title: const Text('Counter Page'),
-        // actions: [
-        //   IconButton(
-        //     onPressed: _decrement,
-        //     icon: const Icon(Icons.remove),
-        //   ),
-        // ],
+        title: Text('News List'),
       ),
-      body: Center(
+      body: ListView.builder(
+        itemCount: _news.length,
+        itemBuilder: (BuildContext context, int index) {
+          final article = _news[index];
+          return ListTile(
+            title: Text(article['title']),
+            subtitle: Text(article['description'] ?? ''),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NewsDetail(article: article)),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class NewsDetail extends StatelessWidget {
+  final dynamic article;
+
+  NewsDetail({required this.article});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('News Detail'),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // $(MyObject value =  MyObject());
-            Text('Giá trị hiện tại: ${MyObject.value}'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () {
-                    MyObject.decrease();
-                    setState(() {});
-                  },
-                  icon: const Icon(Icon.remove),
-                  label: const Text('Giảm'),
-                ),
-                const SizedBox(width: 5),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    MyObject.increase();
-                    setState(() {});
-                  },
-                  icon: const Icon(Icon.add),
-                  label: const Text('Tăng'),
-                )
-              ],
+            Text(
+              article['title'],
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text(
+              article['description'] ?? '',
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Author: ${article['author'] ?? 'Unknown'}',
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Published At: ${article['publishedAt']}',
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 20),
+            if (article['urlToImage'] != null)
+              Image.network(
+                article['urlToImage'],
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            SizedBox(height: 20),
+            Text(
+              article['content'] ?? '',
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),
       ),
     );
-
-    floatingActionButton:
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        FloatingActionButton(
-          onPressed: _decrement,
-          child: const Icon(Icons.remove),
-        ),
-        const SizedBox(width: 50), // Khoảng cách giữa hai nút
-        FloatingActionButton(
-          onPressed: _increment,
-          child: const Icon(Icons.add),
-        ),
-      ],
-    );
   }
-
-  TextField(
-    keyboardType: TextInputType.number,
-    decoration: const InputDecoration(hintText: 'Nhập số nguyên n: '),
-    {int n = int.parse(stdin.readLineSync())},
-    onChanged: (value){
-      n= int.parse(value);
-    },
-    contentPadding:
-      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-  )
-  FloatingActionButton(
-          onPressed: MyObject.power(),
-          child: const Icon(Icons.add),
-        )
 }
